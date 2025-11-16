@@ -1,38 +1,14 @@
-.App {
-  text-align: center;
-}
+/**
+ * App Styles (Legacy - Primarily using Tailwind CSS)
+ * 
+ * This file contains any app-specific styles that complement Tailwind CSS.
+ * Most styling is now handled through Tailwind utility classes directly in components.
+ * 
+ * Custom CSS here should be minimal and only for:
+ * - Complex animations
+ * - Styles that can't be easily achieved with Tailwind
+ * - Component-specific effects
+ */
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
-}
-
-.App-link {
-  color: #61dafb;
-}
-
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
+/* Placeholder for any app-specific styles */
+/* Use Tailwind CSS classes in component JSX files instead */
