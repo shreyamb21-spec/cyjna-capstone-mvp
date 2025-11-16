@@ -80,21 +80,15 @@ export default function App() {
   const [persistentRecentActivity, setPersistentRecentActivity] = usePersistentState('cyjna-recentActivity', {});
 
   // Initialize app on mount
+  // Always start with login screen; user progression handles subsequent screens
   useEffect(() => {
     if (persistentUser) {
       setUser(persistentUser);
       setLearningPlan(persistentLearningPlan);
       setCompletedLessonIds(persistentCompletedIds);
       setRecentActivity(persistentRecentActivity);
-      
-      if (persistentLearningPlan.length === 0) {
-        setCurrentScreen('onboarding');
-      } else {
-        setCurrentScreen('home');
-      }
-    } else {
-      setCurrentScreen('login');
     }
+    setCurrentScreen('login');
     setIsLoading(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -169,9 +163,9 @@ export default function App() {
   const showsNavBar = mainScreens.includes(currentScreen);
 
   return (
-    <div className="h-screen w-screen flex flex-col font-sans max-w-lg mx-auto bg-gray-50 shadow-2xl">
+    <div className="h-screen w-screen flex flex-col font-sans bg-gray-50">
       {/* Main Content Area */}
-      <main className="flex-1 overflow-y-auto pb-16">
+      <main className="flex-1 overflow-y-auto pb-16 w-full max-w-5xl mx-auto">
         {currentScreen === 'home' && (
           <HomeScreen
             user={user}
