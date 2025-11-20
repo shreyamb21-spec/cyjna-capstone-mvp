@@ -1,23 +1,24 @@
 /**
- * API Configuration and Constants
+ * API Configuration Module
  * 
- * This module contains all API endpoints and configuration constants.
+ * This file contains all API configuration and endpoints.
  * 
- * ⚠️ IMPORTANT: The GEMINI_API_KEY is empty by default.
- * YOU MUST REPLACE IT WITH A VALID API KEY FOR THE APP TO WORK.
- * 
- * API Keys:
- * - GEMINI_API_KEY: Your Google Gemini API key
- * 
- * Endpoints:
- * - GEMINI_TEXT_API_URL: Endpoint for text generation
- * - GEMINI_TTS_API_URL: Endpoint for text-to-speech
+ * ⚠️ IMPORTANT: Replace the empty GEMINI_API_KEY with your actual API key for the app to work.
+ * Get your API key from: https://ai.google.dev/
  */
 
-// Per instructions, API key is an empty string.
-// YOU MUST REPLACE "" WITH A VALID API KEY FOR THE APP TO WORK.
-export const GEMINI_API_KEY = ""; // <--- IMPORTANT: ADD YOUR API KEY HERE
+// Gemini API Configuration
+export const GEMINI_API_KEY = "AIzaSyAYB08lrPWeZzv_HXdzRp-0mFsTGZVoFqE";
 
+// API Endpoints
 export const GEMINI_TEXT_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${GEMINI_API_KEY}`;
-
 export const GEMINI_TTS_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${GEMINI_API_KEY}`;
+
+// Models
+export const TEXT_MODEL = "gemini-2.5-flash-preview-09-2025";
+export const TTS_MODEL = "gemini-2.5-flash-preview-tts";
+
+// Default configurations
+export const DEFAULT_LANGUAGE = "en";
+export const DEFAULT_INDUSTRY = "delivery";
+export const DEFAULT_CITY = "a major US city";
