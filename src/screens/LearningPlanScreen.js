@@ -57,23 +57,70 @@ const LearningPlanScreen = ({ setCurrentScreen, userPersona = {}, setRecentActiv
       setStatus('generating');
       setError(null);
 
-      // Simulate API call with Gemini to generate a personalized learning plan
-      const prompt = `Create a personalized learning plan for an English learner with this profile:
+      // Generate 5 industry-specific lessons with phrases
+      const prompt = `Generate a JSON learning plan for an English learner with this profile:
       - Age: ${userPersona.age || 'Not specified'}
       - Nationality: ${userPersona.nationality || 'Not specified'}
       - Target Industry: ${userPersona.targetIndustry || 'General'}
       - Target City: ${userPersona.targetCity || 'Not specified'}
       
-      Provide a 2-3 sentence motivational overview of their personalized learning path.
-      Focus on industry-specific language skills they need.`;
+      Create EXACTLY 5 lessons with 10 phrases each for their industry. Response format (valid JSON only, no markdown):
+      {
+        "lessons": [
+          {
+            "id": 1,
+            "title": "Lesson Title",
+            "description": "Brief description",
+            "phrases": [
+              {"en": "English phrase", "translation": "Chinese translation", "phonetic": "phonetic guide"},
+              ...10 phrases total
+            ]
+          },
+          ...5 lessons total
+        ]
+      }`;
 
       const systemPrompt = {
-        parts: [{ text: "You are an English learning coach. Provide encouraging and practical guidance." }]
+        parts: [{ text: "You are an English learning curriculum designer. Generate industry-specific lessons. Respond ONLY with valid JSON." }]
       };
 
-      await callGeminiText(systemPrompt, [
+      const jsonConfig = {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: "OBJECT",
+          properties: {
+            "lessons": {
+              type: "ARRAY",
+              items: {
+                type: "OBJECT",
+                properties: {
+                  "id": { "type": "INTEGER" },
+                  "title": { "type": "STRING" },
+                  "description": { "type": "STRING" },
+                  "phrases": {
+                    type: "ARRAY",
+                    items: {
+                      type: "OBJECT",
+                      properties: {
+                        "en": { "type": "STRING" },
+                        "translation": { "type": "STRING" },
+                        "phonetic": { "type": "STRING" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      };
+
+      const responseText = await callGeminiText(systemPrompt, [
         { role: 'user', parts: [{ text: prompt }] }
-      ]);
+      ], jsonConfig);
+
+      const planData = JSON.parse(responseText);
+      const lessons = planData.lessons || [];
 
       // Simulate processing time
       setProgress(85);
@@ -82,13 +129,17 @@ const LearningPlanScreen = ({ setCurrentScreen, userPersona = {}, setRecentActiv
       // Record activity
       if (setRecentActivity) {
         setRecentActivity(prev => [
-          { id: Date.now(), text: 'Completed onboarding - Plan generated', time: 'Just now' },
+          { id: Date.now(), text: `Completed onboarding - ${lessons.length} lessons generated`, time: 'Just now' },
           ...prev.slice(0, 4)
         ]);
       }
 
       setProgress(100);
       setStatus('ready');
+
+      // Pass lessons data back to App via state/context
+      // For now, store in localStorage and transition
+      localStorage.setItem('learningPlan', JSON.stringify(lessons));
 
       // Auto-transition after 2 seconds
       const timer = setTimeout(() => {
@@ -97,11 +148,73 @@ const LearningPlanScreen = ({ setCurrentScreen, userPersona = {}, setRecentActiv
 
       return () => clearTimeout(timer);
     } catch (err) {
+      console.error('Plan generation error:', err);
+      
+      // Generate default lessons if API fails
+      const defaultLessons = [
+        {
+          id: 1,
+          title: "Getting Started",
+          description: "Essential phrases for your first day",
+          phrases: Array(10).fill(null).map((_, i) => ({
+            en: `Phrase ${i + 1}`,
+            translation: `短语 ${i + 1}`,
+            phonetic: `phon-ic-${i + 1}`
+          }))
+        },
+        {
+          id: 2,
+          title: "Common Interactions",
+          description: "Everyday conversations",
+          phrases: Array(10).fill(null).map((_, i) => ({
+            en: `Common phrase ${i + 1}`,
+            translation: `常见短语 ${i + 1}`,
+            phonetic: `common-phon-${i + 1}`
+          }))
+        },
+        {
+          id: 3,
+          title: "Building Confidence",
+          description: "Intermediate level conversations",
+          phrases: Array(10).fill(null).map((_, i) => ({
+            en: `Confidence phrase ${i + 1}`,
+            translation: `自信短语 ${i + 1}`,
+            phonetic: `conf-phon-${i + 1}`
+          }))
+        },
+        {
+          id: 4,
+          title: "Advanced Scenarios",
+          description: "Complex workplace situations",
+          phrases: Array(10).fill(null).map((_, i) => ({
+            en: `Advanced phrase ${i + 1}`,
+            translation: `高级短语 ${i + 1}`,
+            phonetic: `adv-phon-${i + 1}`
+          }))
+        },
+        {
+          id: 5,
+          title: "Industry Specific",
+          description: `${userPersona.targetIndustry || 'General'} vocabulary`,
+          phrases: Array(10).fill(null).map((_, i) => ({
+            en: `Industry phrase ${i + 1}`,
+            translation: `行业短语 ${i + 1}`,
+            phonetic: `ind-phon-${i + 1}`
+          }))
+        }
+      ];
+
+      localStorage.setItem('learningPlan', JSON.stringify(defaultLessons));
+      
       if (err.message && (err.message.includes("401") || err.message.toLowerCase().includes("unauthorized"))) {
-        setError("Authentication failed (Error 401). Unable to generate personalized plan. Proceeding with default content.");
+        setError("API key missing. Loaded default lessons.");
       } else {
-        setError("Unable to generate plan. You can still proceed with default lessons.");
+        setError("Generation failed. Loaded default lessons.");
       }
+      
+      setProgress(100);
+      setStatus('ready');
+      
       // Continue anyway after 2 seconds
       const timer = setTimeout(() => {
         setCurrentScreen('home');

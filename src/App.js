@@ -12,7 +12,7 @@
  * Onboarding → Learning Plan Generation → Home (Dashboard) → Lessons/Chat/Progress
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 // Components
 import TopBar from './components/TopBar';
@@ -48,8 +48,31 @@ export default function App() {
   // --- Pronunciation Practice State ---
   const [pronunciationPhrase, setPronunciationPhrase] = useState(null);
 
-  // --- Handlers ---
+  // Load learning plan on component mount
+  useEffect(() => {
+    const storedPlan = localStorage.getItem('learningPlan');
+    if (storedPlan) {
+      try {
+        setLearningPlan(JSON.parse(storedPlan));
+      } catch (e) {
+        console.error('Failed to parse learning plan:', e);
+      }
+    }
+  }, []);
+
+  // Load learning plan from localStorage when home screen is visited
   const handleSetCurrentScreen = (screen) => {
+    if (screen === 'home' && learningPlan.length === 0) {
+      const storedPlan = localStorage.getItem('learningPlan');
+      if (storedPlan) {
+        try {
+          setLearningPlan(JSON.parse(storedPlan));
+        } catch (e) {
+          console.error('Failed to parse learning plan:', e);
+        }
+      }
+    }
+    
     // Special handling for chat-main to clear lesson context
     if (screen === 'chat-main') {
       setCurrentLesson(null);
@@ -60,7 +83,7 @@ export default function App() {
   };
 
   // --- Conditions ---
-  const showOnboarding = ['onboarding', 'onboarding-step-2', 'learning-plan-generator'].includes(currentScreen);
+  const showOnboarding = ['onboarding', 'onboarding-step-two', 'learning-plan'].includes(currentScreen);
   const showNavigation = !showOnboarding;
 
   // --- Render ---

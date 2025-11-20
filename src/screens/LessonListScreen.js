@@ -14,30 +14,38 @@ import React from 'react';
 import Icon from '../components/Icon';
 
 const LessonListScreen = ({ learningPlan, setCurrentScreen, setCurrentLesson }) => {
-  // Split 50 phrases into 5 lessons (10 phrases each)
-  const lessons = [];
-  const phrasesPerLesson = 10;
-  const totalLessons = 5;
-  const lessonTitles = [
-    "Lesson 1: Getting Started",
-    "Lesson 2: Common Interactions",
-    "Lesson 3: Building Confidence",
-    "Lesson 4: Advanced Scenarios",
-    "Lesson 5: Industry Specific"
-  ];
-
-  for (let i = 0; i < totalLessons; i++) {
-    const start = i * phrasesPerLesson;
-    const end = start + phrasesPerLesson;
-    const lessonPhrases = learningPlan.slice(start, end);
-    
-    lessons.push({
-      id: `lesson${i + 1}`,
-      title: lessonTitles[i] || `Lesson ${i + 1}`,
-      phrases: lessonPhrases,
-      phraseCount: lessonPhrases.length
-    });
-  }
+  // Handle both new lesson structure (array of lessons) and legacy flat array format
+  const lessons = Array.isArray(learningPlan) && learningPlan.length > 0
+    ? learningPlan[0]?.title // Check if it's already structured lessons
+      ? learningPlan // Already structured lessons with {id, title, description, phrases}
+      : // Legacy format: flat array of phrases - split into 5 lessons
+        (() => {
+          const phrasesPerLesson = 10;
+          const totalLessons = 5;
+          const lessonTitles = [
+            "Lesson 1: Getting Started",
+            "Lesson 2: Common Interactions",
+            "Lesson 3: Building Confidence",
+            "Lesson 4: Advanced Scenarios",
+            "Lesson 5: Industry Specific"
+          ];
+          
+          const structuredLessons = [];
+          for (let i = 0; i < totalLessons; i++) {
+            const start = i * phrasesPerLesson;
+            const end = start + phrasesPerLesson;
+            const lessonPhrases = learningPlan.slice(start, end);
+            
+            structuredLessons.push({
+              id: `lesson${i + 1}`,
+              title: lessonTitles[i] || `Lesson ${i + 1}`,
+              phrases: lessonPhrases,
+              phraseCount: lessonPhrases.length
+            });
+          }
+          return structuredLessons;
+        })()
+    : [];
 
   const handleLessonSelect = (lesson) => {
     setCurrentLesson(lesson);
@@ -55,21 +63,21 @@ const LessonListScreen = ({ learningPlan, setCurrentScreen, setCurrentLesson }) 
               key={lesson.id} 
               onClick={() => handleLessonSelect(lesson)} 
               className="w-full bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow text-left flex items-center justify-between"
-              disabled={lesson.phrases.length === 0}
+              disabled={lesson.phrases?.length === 0}
             >
               <div>
                 <h2 className="text-xl font-semibold text-gray-900 mb-1">
                   {lesson.title}
                 </h2>
                 <p className="text-sm text-gray-600">
-                  {lesson.phraseCount} phrases
+                  {lesson.phrases?.length || 0} phrases
                 </p>
               </div>
               <Icon name="chevron-right" size={24} className="text-gray-400" />
             </button>
           ))}
           
-          {learningPlan.length === 0 && (
+          {lessons.length === 0 && (
             <p className="text-gray-600 text-center py-8">
               Your lesson plan is empty. Please try re-onboarding to generate one.
             </p>
