@@ -8,7 +8,7 @@
  * - User persona and learning data
  * - Component imports and rendering
  * 
- * Screen Flow:
+ * Screen Flow: 
  * Onboarding → Learning Plan Generation → Home (Dashboard) → Lessons/Chat/Progress
  */
 
