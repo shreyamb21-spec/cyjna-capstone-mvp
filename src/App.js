@@ -36,7 +36,7 @@ function pcmToWav(pcmData, sampleRate) {
   const buffer = new ArrayBuffer(fileSize + 8); // +8 for RIFF chunk
   const view = new DataView(buffer);
 
-  // RIFF header
+  // RIFF header 
   view.setUint32(0, 0x52494646, false); // "RIFF"
   view.setUint32(4, fileSize, true); // File size
   view.setUint32(8, 0x57415645, false); // "WAVE"
